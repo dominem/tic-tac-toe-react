@@ -1,0 +1,14 @@
+.Field {
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  border: 1px solid black;
+}
+
+.Field.Solution {
+  background-color: #1fe4c0;
+}
+
+/*.Field:not(:first-child) {*/
+/*  margin-left: -1px;*/
+/*}*/
