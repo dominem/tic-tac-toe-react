@@ -29,7 +29,7 @@ class Game extends React.Component {
   }
 
   markField = (id) => {
-    this.game.markField(id);
+    this.game.tryToMarkField(id);
     this.mapState();
   };
 
