@@ -52,8 +52,8 @@ const RUNNING = "running";
 const OVER = "over";
 
 class TicTacToe {
-  static players = {CROSS: CROSS, NOUGHT: NOUGHT};
-  static states = {RUNNING: RUNNING, OVER: OVER};
+  static players = {CROSS, NOUGHT};
+  static states = {RUNNING, OVER};
   state = RUNNING;
   turn = CROSS;
   winner = null;
