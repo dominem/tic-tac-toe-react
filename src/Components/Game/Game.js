@@ -4,7 +4,7 @@ import TicTacToe from '../../TicTacToe/TicTacToe';
 import Board from "../Board/Board";
 
 class Game extends React.Component {
-  game = new TicTacToe(5);
+  game = new TicTacToe(6);
 
   state = {
     state: null,
