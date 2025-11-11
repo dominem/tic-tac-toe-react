@@ -64,8 +64,8 @@ class TicTacToe {
   solution: number[] | null = null;
 
   public readonly rowSize: number;
-  private readonly boardSize: number;
-  private readonly fields: Field[];
+  public readonly boardSize: number;
+  public readonly fields: Field[];
   private readonly diagonalA: number[];
   private readonly diagonalB: number[];
 
