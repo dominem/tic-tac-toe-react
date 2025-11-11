@@ -51,13 +51,23 @@ const NOUGHT = "nought";
 const RUNNING = "running";
 const OVER = "over";
 
+interface Field {
+  occupiedBy: string | null;
+}
+
 class TicTacToe {
   static players = {CROSS, NOUGHT};
   static states = {RUNNING, OVER};
-  state = RUNNING;
-  turn = CROSS;
-  winner = null;
-  solution = null;
+  state: string = RUNNING;
+  turn: string = CROSS;
+  winner: string | null = null;
+  solution: number[] | null = null;
+
+  public readonly rowSize: number;
+  private readonly boardSize: number;
+  private readonly fields: Field[];
+  private readonly diagonalA: number[];
+  private readonly diagonalB: number[];
 
   constructor(rowSize = 3) {
     this.rowSize = rowSize;
@@ -67,7 +77,7 @@ class TicTacToe {
     this.diagonalB = this._generateDiagonalB();
   }
   
-  tryToMarkField = (index) => {
+  tryToMarkField = (index: number) => {
     if (this._canMarkField(index)) {
       this._markField(index);
       this._checkForWinner(index);
@@ -76,7 +86,7 @@ class TicTacToe {
     }
   };
 
-  _checkForWinner = (index) => {
+  _checkForWinner = (index: number) => {
     const row = this._fieldsRow(index);
     const columnFromLeft = this._fieldsColumnFromLeft(index);
     const columnFromRight = this._fieldsColumnFromRight(index);
@@ -92,7 +102,7 @@ class TicTacToe {
     }
   };
 
-  _checkForWinnerOnLine = (line) => {
+  _checkForWinnerOnLine = (line: number[]) => {
     if (this._isWholeLineOccupied(line)) {
       this.state = OVER;
       this.winner = this.turn;
@@ -100,19 +110,19 @@ class TicTacToe {
     }
   };
 
-  _generateFields = () => Array(this.boardSize).fill(0).map(() => ({occupiedBy: null}));
+  _generateFields = () => Array(this.boardSize).fill(0).map(() => ({occupiedBy: null} as Field));
   _generateDiagonalA = () => this._generateDiagonal((i) => ((i - 1) * this.rowSize) + i - 1);
   _generateDiagonalB = () => this._generateDiagonal((i) => (i * this.rowSize) - i);
-  _generateDiagonal = (formula) => [...Array(this.rowSize).keys()].map((i) => formula(i + 1));
-  _canMarkField = (index) => this.state === RUNNING && this.fields[index].occupiedBy === null;
-  _markField = (index) => this.fields[index].occupiedBy = this.turn;
+  _generateDiagonal = (formula: (i: number) => number) => [...Array(this.rowSize).keys()].map((i) => formula(i + 1));
+  _canMarkField = (index: number) => this.state === RUNNING && this.fields[index].occupiedBy === null;
+  _markField = (index: number) => this.fields[index].occupiedBy = this.turn;
   _switchTurn = () => this.turn = this.turn === CROSS ? NOUGHT : CROSS;
-  _fieldsRow = (index) => Math.floor(index / this.rowSize) + 1;
-  _fieldsColumnFromLeft = (index) => (index % this.rowSize) + 1;
-  _fieldsColumnFromRight = (index) => this.rowSize - (index % this.rowSize);
-  _rowIndexes = (row) => [...Array(this.rowSize).keys()].map((i) => i + ((row - 1) * this.rowSize));
-  _columnIndexes = (column) => [...Array(this.rowSize).keys()].map((i) => column + (i * this.rowSize) - 1);
-  _isWholeLineOccupied = (line) => line.every((i) => this.fields[i].occupiedBy === this.turn);
+  _fieldsRow = (index: number) => Math.floor(index / this.rowSize) + 1;
+  _fieldsColumnFromLeft = (index: number) => (index % this.rowSize) + 1;
+  _fieldsColumnFromRight = (index: number) => this.rowSize - (index % this.rowSize);
+  _rowIndexes = (row: number) => [...Array(this.rowSize).keys()].map((i) => i + ((row - 1) * this.rowSize));
+  _columnIndexes = (column: number) => [...Array(this.rowSize).keys()].map((i) => column + (i * this.rowSize) - 1);
+  _isWholeLineOccupied = (line: number[]) => line.every((i) => this.fields[i].occupiedBy === this.turn);
   _isWholeBoardOccupied = () => this.fields.every((field) => field.occupiedBy !== null);
 }
 
