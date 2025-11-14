@@ -1,7 +1,7 @@
 import React from 'react';
 import './Game.css';
 import TicTacToe from '../../TicTacToe/TicTacToe';
-import Board from "../Board/Board";
+import Board from '../Board/Board';
 
 
 interface GameState {
