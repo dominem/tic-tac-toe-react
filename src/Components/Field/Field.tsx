@@ -4,17 +4,23 @@ import Cross from "../Cross/Cross";
 import Nought from "../Nought/Nought";
 import GameEngine from '../../TicTacToe/TicTacToe';
 
-const Field = (props) => {
-  let mark = null;
+interface FieldProps {
+  occupiedBy: string | null;
+  className?: string;
+  onClick?: () => void;
+}
+
+const Field: React.FC<FieldProps> = (props) => {
+  let mark: React.ReactNode = null;
 
   if (props.occupiedBy === GameEngine.players.CROSS) {
-    mark = <Cross/>
+    mark = <Cross/>;
   } else if (props.occupiedBy === GameEngine.players.NOUGHT) {
-    mark = <Nought/>
+    mark = <Nought/>;
   }
 
   return (
-    <div className={"Field " + props.className} onClick={props.onClick}>
+    <div className={"Field " + (props.className ?? "")} onClick={props.onClick}>
       {mark}
     </div>
   );

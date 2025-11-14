@@ -1,5 +1,5 @@
 import React from 'react';
-import Field from "../Field/Field";
+import Field from '../Field/Field';
 import './Board.css';
 
 interface FieldType {
