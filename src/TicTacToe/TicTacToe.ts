@@ -25,7 +25,46 @@ class TicTacToe {
 
   public readonly rowSize: number;
   public readonly boardSize: number;
+  
+  /**
+   * Internal board representation as a 1D array of fields.
+   * 
+   * The board is stored as a flat array rather than a 2D array for several advantages:
+   * 
+   * 1. **Simple iteration**: The entire board can be iterated with a single loop,
+   *    making operations like checking for draws or rendering straightforward.
+   * 
+   * 2. **Efficient access**: Direct index access (O(1)) without nested array lookups.
+   *    The public API uses indices (e.g., `tryToMarkField(index)`), which maps
+   *    naturally to this representation.
+   * 
+   * 3. **Clean coordinate conversion**: Converting between 1D indices and 2D coordinates
+   *    is simple and efficient:
+   *    - Row: `Math.floor(index / rowSize)`
+   *    - Column: `index % rowSize`
+   *    - Index: `row * rowSize + column`
+   * 
+   * 4. **Serialization-friendly**: A flat array is easier to serialize/deserialize
+   *    for saving game state, network transfer, or persistence.
+   * 
+   * 5. **Memory efficiency**: Single contiguous array with no nested structure overhead.
+   * 
+   * 6. **Flexible board sizes**: Works seamlessly with variable board sizes (3x3, 5x5, etc.)
+   *    without structural changes.
+   * 
+   * Example mapping for a 3x3 board (rowSize=3):
+   * ```
+   * 2D coordinates → 1D index
+   * [0,0] → 0    [0,1] → 1    [0,2] → 2
+   * [1,0] → 3    [1,1] → 4    [1,2] → 5
+   * [2,0] → 6    [2,1] → 7    [2,2] → 8
+   * ```
+   * 
+   * The UI layer handles the 2D visual layout using CSS Grid, keeping the engine
+   * framework-agnostic and the data representation simple.
+   */
   public readonly fields: Field[];
+
   /** Indices for the main diagonal (top-left to bottom-right) */
   private readonly mainDiagonal: number[];
   /** Indices for the anti-diagonal (top-right to bottom-left) */
