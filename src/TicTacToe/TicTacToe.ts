@@ -1,51 +1,3 @@
-/* This comment contains some personal analysis of the game.
- *
- * Board:
- * 0 1 2
- * 3 4 5
- * 6 7 8
- *
- * 1 2 3
- * 4 5 6
- * 7 8 9
- *
- * ATTENTION! Counting starts from 1 in this analysis, not from 0!
- * n - row/column size
- * n x n - board size
- * i - current index
- * r - current row
- * cl - current column from left
- * cr - current column from right
- * cr = n - cl + 1
- *
- * Checks if i is on:
- * corners: (i == 1), (i == n), (i == (n x n - n + 1)), (i == (n x n))
- * diagonals: (r == cl), (r == cr)
- *
- * if on diagonal A:
- *    check other fields on diagonal A
- * if on diagonal B:
- *    check other fields on diagonal B
- * check other fields on the row
- * check other fields on the column
- *
- * 1  2  3  4
- * 5  6  7  8
- * 9  10 11 12
- * 13 14 15 16
- *
- * diagonal A for x in [1,n]: ((x - 1) * n) + x
- * diagonal B for x in [1,n]: (x * n) - x + 1
- * a row for x in [1,n]: x + ((r - 1) * n)
- * a column for x in [1,n]: cl + ((x - 1) * n)
- *
- * 1    2    3    4    5
- * 6    7    8    9    10
- * 11   12   13   14   15
- * 16   17   18   19   20
- * 21   22   23   24   25
- */
-
 const CROSS = "cross";
 const NOUGHT = "nought";
 const RUNNING = "running";
@@ -55,6 +7,11 @@ interface Field {
   occupiedBy: string | null;
 }
 
+/**
+ * Core game engine for Tic-Tac-Toe.
+ * Manages game state, player turns, board logic, and win detection.
+ * Not tied to any UI framework - can be used with any frontend or backend implementation.
+ */
 class TicTacToe {
   static players = {CROSS, NOUGHT};
   static states = {RUNNING, OVER};
