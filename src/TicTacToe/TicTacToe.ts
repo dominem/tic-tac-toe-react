@@ -26,17 +26,24 @@ class TicTacToe {
   public readonly rowSize: number;
   public readonly boardSize: number;
   public readonly fields: Field[];
-  private readonly diagonalA: number[];
-  private readonly diagonalB: number[];
+  /** Indices for the main diagonal (top-left to bottom-right) */
+  private readonly mainDiagonal: number[];
+  /** Indices for the anti-diagonal (top-right to bottom-left) */
+  private readonly antiDiagonal: number[];
 
   constructor(rowSize = 3) {
     this.rowSize = rowSize;
     this.boardSize = rowSize * rowSize;
     this.fields = this.generateFields();
-    this.diagonalA = this.generateDiagonalA();
-    this.diagonalB = this.generateDiagonalB();
+    this.mainDiagonal = this.generateMainDiagonal();
+    this.antiDiagonal = this.generateAntiDiagonal();
   }
   
+  /**
+   * Attempts to mark a field at the given index with the current player's mark.
+   * Only succeeds if the game is running and the field is unoccupied.
+   * After marking, checks for win/draw conditions and switches turns.
+   */
   public tryToMarkField(index: number): void {
     if (this.canMarkField(index)) {
       this.markField(index);
@@ -46,82 +53,149 @@ class TicTacToe {
     }
   }
 
+  /**
+   * Checks if the move at the given index creates a winning line.
+   * Evaluates the row, column, and diagonals (if applicable) that contain this field.
+   */
   private checkForWinner(index: number): void {
-    const row = this.fieldsRow(index);
-    const columnFromLeft = this.fieldsColumnFromLeft(index);
-    const columnFromRight = this.fieldsColumnFromRight(index);
-    if (row === columnFromLeft) this.checkForWinnerOnLine(this.diagonalA);
-    if (row === columnFromRight) this.checkForWinnerOnLine(this.diagonalB);
-    this.checkForWinnerOnLine(this.rowIndexes(row));
-    this.checkForWinnerOnLine(this.columnIndexes(columnFromLeft));
+    const rowNumber = this.getRowNumber(index);
+    const columnNumber = this.getColumnNumber(index);
+    const reverseColumnNumber = this.getReverseColumnNumber(index);
+    
+    // A field is on the main diagonal if its row number equals its column number
+    if (rowNumber === columnNumber) {
+      this.evaluateLineForWin(this.mainDiagonal);
+    }
+    // A field is on the anti-diagonal if its row number equals its reverse column number
+    if (rowNumber === reverseColumnNumber) {
+      this.evaluateLineForWin(this.antiDiagonal);
+    }
+    
+    // Always check the row and column containing this field
+    this.evaluateLineForWin(this.getRowFieldIndices(rowNumber));
+    this.evaluateLineForWin(this.getColumnFieldIndices(columnNumber));
   }
 
+  /**
+   * Checks if the game has ended in a draw (all fields occupied with no winner).
+   */
   private checkForDraw(): void {
     if (this.isWholeBoardOccupied()) {
       this.state = GameState.OVER;
     }
   }
 
-  private checkForWinnerOnLine(line: number[]): void {
-    if (this.isWholeLineOccupied(line)) {
+  /**
+   * Evaluates a line (row, column, or diagonal) to see if the current player has won.
+   * If all fields in the line are occupied by the current player, sets the game state to OVER
+   * and records the winner and winning line indices.
+   */
+  private evaluateLineForWin(line: number[]): void {
+    if (this.isLineWinningForCurrentPlayer(line)) {
       this.state = GameState.OVER;
       this.winner = this.turn;
       this.solution = line;
     }
   }
 
+  /**
+   * Creates an array of empty fields for the game board.
+   */
   private generateFields(): Field[] {
     return Array(this.boardSize).fill(0).map(() => ({} as Field));
   }
 
-  private generateDiagonalA(): number[] {
+  /**
+   * Generates indices for the main diagonal (top-left to bottom-right).
+   * Formula: for row i (1-based), index = (i-1) * rowSize + (i-1)
+   */
+  private generateMainDiagonal(): number[] {
     return this.generateDiagonal((i) => ((i - 1) * this.rowSize) + i - 1);
   }
 
-  private generateDiagonalB(): number[] {
+  /**
+   * Generates indices for the anti-diagonal (top-right to bottom-left).
+   * Formula: for row i (1-based), index = i * rowSize - i
+   */
+  private generateAntiDiagonal(): number[] {
     return this.generateDiagonal((i) => (i * this.rowSize) - i);
   }
 
+  /**
+   * Helper to generate a diagonal by applying a formula to each row index.
+   * @param formula Function that calculates the field index for a given row number (1-based)
+   */
   private generateDiagonal(formula: (i: number) => number): number[] {
     return [...Array(this.rowSize).keys()].map((i) => formula(i + 1));
   }
 
+  /**
+   * Checks if a field can be marked (game is running and field is unoccupied).
+   */
   private canMarkField(index: number): boolean {
     return this.state === GameState.RUNNING && !this.fields[index].occupiedBy;
   }
 
+  /**
+   * Marks a field with the current player's symbol.
+   */
   private markField(index: number): void {
     this.fields[index].occupiedBy = this.turn;
   }
 
+  /**
+   * Switches the turn to the other player.
+   */
   private switchTurn(): void {
     this.turn = this.turn === Player.CROSS ? Player.NOUGHT : Player.CROSS;
   }
   
-  private fieldsRow(index: number): number {
+  /**
+   * Returns the row number (1-based) for a given field index.
+   */
+  private getRowNumber(index: number): number {
     return Math.floor(index / this.rowSize) + 1;
   }
 
-  private fieldsColumnFromLeft(index: number): number {
+  /**
+   * Returns the column number (1-based, counting from left) for a given field index.
+   */
+  private getColumnNumber(index: number): number {
     return (index % this.rowSize) + 1;
   }
 
-  private fieldsColumnFromRight(index: number): number {
+  /**
+   * Returns the column number (1-based, counting from right) for a given field index.
+   * Used to determine if a field is on the anti-diagonal.
+   */
+  private getReverseColumnNumber(index: number): number {
     return this.rowSize - (index % this.rowSize);
   }
 
-  private rowIndexes(row: number): number[] {
+  /**
+   * Returns all field indices for a given row number (1-based).
+   */
+  private getRowFieldIndices(row: number): number[] {
     return [...Array(this.rowSize).keys()].map((i) => i + ((row - 1) * this.rowSize));
   }
 
-  private columnIndexes(column: number): number[] {
+  /**
+   * Returns all field indices for a given column number (1-based, counting from left).
+   */
+  private getColumnFieldIndices(column: number): number[] {
     return [...Array(this.rowSize).keys()].map((i) => column + (i * this.rowSize) - 1);
   }
 
-  private isWholeLineOccupied(line: number[]): boolean {
+  /**
+   * Checks if all fields in a line are occupied by the current player (indicating a win).
+   */
+  private isLineWinningForCurrentPlayer(line: number[]): boolean {
     return line.every((i) => this.fields[i].occupiedBy === this.turn);
   }
 
+  /**
+   * Checks if all fields on the board are occupied (indicating a draw if no winner).
+   */
   private isWholeBoardOccupied(): boolean {
     return this.fields.every((field) => field.occupiedBy != null);
   }
