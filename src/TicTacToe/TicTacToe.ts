@@ -32,6 +32,9 @@ class TicTacToe {
   private readonly antiDiagonal: number[];
 
   constructor(rowSize = 3) {
+    if (!Number.isInteger(rowSize) || rowSize < 3) {
+      throw new Error(`rowSize must be an integer >= 3, got ${rowSize}`);
+    }
     this.rowSize = rowSize;
     this.boardSize = rowSize * rowSize;
     this.fields = this.generateFields();
@@ -48,8 +51,14 @@ class TicTacToe {
     if (this.canMarkField(index)) {
       this.markField(index);
       this.checkForWinner(index);
-      this.checkForDraw();
-      this.switchTurn();
+      // Only check for draw if no winner was found
+      if (this.state === GameState.RUNNING) {
+        this.checkForDraw();
+      }
+      // Only switch turn if game is still running
+      if (this.state === GameState.RUNNING) {
+        this.switchTurn();
+      }
     }
   }
 
@@ -131,8 +140,12 @@ class TicTacToe {
 
   /**
    * Checks if a field can be marked (game is running and field is unoccupied).
+   * Throws an error if the index is out of bounds.
    */
   private canMarkField(index: number): boolean {
+    if (index < 0 || index >= this.boardSize) {
+      throw new Error(`Index ${index} is out of bounds. Valid range: 0-${this.boardSize - 1}`);
+    }
     return this.state === GameState.RUNNING && !this.fields[index].occupiedBy;
   }
 
