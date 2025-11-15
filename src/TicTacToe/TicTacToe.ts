@@ -40,35 +40,35 @@ class TicTacToe {
   tryToMarkField = (index: number) => {
     if (this.canMarkField(index)) {
       this.markField(index);
-      this._checkForWinner(index);
-      this._checkForDraw();
+      this.checkForWinner(index);
+      this.checkForDraw();
       this.switchTurn();
     }
   };
 
-  _checkForWinner = (index: number) => {
+  private checkForWinner(index: number): void {
     const row = this.fieldsRow(index);
     const columnFromLeft = this.fieldsColumnFromLeft(index);
     const columnFromRight = this.fieldsColumnFromRight(index);
-    if (row === columnFromLeft) this._checkForWinnerOnLine(this.diagonalA);
-    if (row === columnFromRight) this._checkForWinnerOnLine(this.diagonalB);
-    this._checkForWinnerOnLine(this.rowIndexes(row));
-    this._checkForWinnerOnLine(this.columnIndexes(columnFromLeft));
-  };
+    if (row === columnFromLeft) this.checkForWinnerOnLine(this.diagonalA);
+    if (row === columnFromRight) this.checkForWinnerOnLine(this.diagonalB);
+    this.checkForWinnerOnLine(this.rowIndexes(row));
+    this.checkForWinnerOnLine(this.columnIndexes(columnFromLeft));
+  }
 
-  _checkForDraw = () => {
+  private checkForDraw(): void {
     if (this.isWholeBoardOccupied()) {
       this.state = GameState.OVER;
     }
-  };
+  }
 
-  _checkForWinnerOnLine = (line: number[]) => {
+  private checkForWinnerOnLine(line: number[]): void {
     if (this.isWholeLineOccupied(line)) {
       this.state = GameState.OVER;
       this.winner = this.turn;
       this.solution = line;
     }
-  };
+  }
 
   private generateFields(): Field[] {
     return Array(this.boardSize).fill(0).map(() => ({} as Field));
