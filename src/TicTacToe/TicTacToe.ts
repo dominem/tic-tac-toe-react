@@ -1,10 +1,15 @@
-const CROSS = "cross";
-const NOUGHT = "nought";
-const RUNNING = "running";
-const OVER = "over";
+export enum Player {
+  CROSS = "cross",
+  NOUGHT = "nought"
+}
+
+export enum GameState {
+  RUNNING = "running",
+  OVER = "over"
+}
 
 interface Field {
-  occupiedBy: string | null;
+  occupiedBy: Player | null;
 }
 
 /**
@@ -13,11 +18,9 @@ interface Field {
  * Not tied to any UI framework - can be used with any frontend or backend implementation.
  */
 class TicTacToe {
-  static players = {CROSS, NOUGHT};
-  static states = {RUNNING, OVER};
-  state: string = RUNNING;
-  turn: string = CROSS;
-  winner: string | null = null;
+  state: GameState = GameState.RUNNING;
+  turn: Player = Player.CROSS;
+  winner: Player | null = null;
   solution: number[] | null = null;
 
   public readonly rowSize: number;
@@ -55,13 +58,13 @@ class TicTacToe {
 
   _checkForDraw = () => {
     if (this._isWholeBoardOccupied()) {
-      this.state = OVER;
+      this.state = GameState.OVER;
     }
   };
 
   _checkForWinnerOnLine = (line: number[]) => {
     if (this._isWholeLineOccupied(line)) {
-      this.state = OVER;
+      this.state = GameState.OVER;
       this.winner = this.turn;
       this.solution = line;
     }
@@ -71,9 +74,9 @@ class TicTacToe {
   _generateDiagonalA = () => this._generateDiagonal((i) => ((i - 1) * this.rowSize) + i - 1);
   _generateDiagonalB = () => this._generateDiagonal((i) => (i * this.rowSize) - i);
   _generateDiagonal = (formula: (i: number) => number) => [...Array(this.rowSize).keys()].map((i) => formula(i + 1));
-  _canMarkField = (index: number) => this.state === RUNNING && this.fields[index].occupiedBy === null;
+  _canMarkField = (index: number) => this.state === GameState.RUNNING && this.fields[index].occupiedBy === null;
   _markField = (index: number) => this.fields[index].occupiedBy = this.turn;
-  _switchTurn = () => this.turn = this.turn === CROSS ? NOUGHT : CROSS;
+  _switchTurn = () => this.turn = this.turn === Player.CROSS ? Player.NOUGHT : Player.CROSS;
   _fieldsRow = (index: number) => Math.floor(index / this.rowSize) + 1;
   _fieldsColumnFromLeft = (index: number) => (index % this.rowSize) + 1;
   _fieldsColumnFromRight = (index: number) => this.rowSize - (index % this.rowSize);

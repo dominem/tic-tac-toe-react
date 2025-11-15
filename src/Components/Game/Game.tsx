@@ -1,10 +1,10 @@
 import React from 'react';
 import './Game.css';
-import TicTacToe from '../../TicTacToe/TicTacToe';
+import TicTacToe, { Player, GameState } from '../../TicTacToe/TicTacToe';
 import Board from '../Board/Board';
 
 
-interface GameState {
+interface GameComponentState {
   state: string | null,
   turn: string | null,
   fields: {
@@ -15,10 +15,10 @@ interface GameState {
   solution: number[] | null,
 }
 
-class Game extends React.Component<{}, GameState> {
+class Game extends React.Component<{}, GameComponentState> {
   game = new TicTacToe(5);
 
-  state: GameState = {
+  state: GameComponentState = {
     state: null,
     turn: null,
     fields: [],
@@ -48,9 +48,9 @@ class Game extends React.Component<{}, GameState> {
   render() {
     let winner = null;
     let draw = null;
-    if (this.state.state === TicTacToe.states.OVER) {
+    if (this.state.state === GameState.OVER) {
       if (this.state.winner) {
-        winner = <h2>{this.state.winner === TicTacToe.players.CROSS ? "Cross" : "Nought"} is the winner!</h2>;
+        winner = <h2>{this.state.winner === Player.CROSS ? "Cross" : "Nought"} is the winner!</h2>;
       } else {
         draw = <h2>DRAW!</h2>;
       }
