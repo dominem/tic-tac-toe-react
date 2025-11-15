@@ -9,7 +9,7 @@ export enum GameState {
 }
 
 interface Field {
-  occupiedBy: Player | null;
+  occupiedBy?: Player;
 }
 
 /**
@@ -20,8 +20,8 @@ interface Field {
 class TicTacToe {
   state: GameState = GameState.RUNNING;
   turn: Player = Player.CROSS;
-  winner: Player | null = null;
-  solution: number[] | null = null;
+  winner?: Player;
+  solution?: number[];
 
   public readonly rowSize: number;
   public readonly boardSize: number;
@@ -70,11 +70,11 @@ class TicTacToe {
     }
   };
 
-  _generateFields = () => Array(this.boardSize).fill(0).map(() => ({occupiedBy: null} as Field));
+  _generateFields = () => Array(this.boardSize).fill(0).map(() => ({} as Field));
   _generateDiagonalA = () => this._generateDiagonal((i) => ((i - 1) * this.rowSize) + i - 1);
   _generateDiagonalB = () => this._generateDiagonal((i) => (i * this.rowSize) - i);
   _generateDiagonal = (formula: (i: number) => number) => [...Array(this.rowSize).keys()].map((i) => formula(i + 1));
-  _canMarkField = (index: number) => this.state === GameState.RUNNING && this.fields[index].occupiedBy === null;
+  _canMarkField = (index: number) => this.state === GameState.RUNNING && !this.fields[index].occupiedBy;
   _markField = (index: number) => this.fields[index].occupiedBy = this.turn;
   _switchTurn = () => this.turn = this.turn === Player.CROSS ? Player.NOUGHT : Player.CROSS;
   _fieldsRow = (index: number) => Math.floor(index / this.rowSize) + 1;
@@ -83,7 +83,7 @@ class TicTacToe {
   _rowIndexes = (row: number) => [...Array(this.rowSize).keys()].map((i) => i + ((row - 1) * this.rowSize));
   _columnIndexes = (column: number) => [...Array(this.rowSize).keys()].map((i) => column + (i * this.rowSize) - 1);
   _isWholeLineOccupied = (line: number[]) => line.every((i) => this.fields[i].occupiedBy === this.turn);
-  _isWholeBoardOccupied = () => this.fields.every((field) => field.occupiedBy !== null);
+  _isWholeBoardOccupied = () => this.fields.every((field) => field.occupiedBy != null);
 }
 
 export default TicTacToe;

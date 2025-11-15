@@ -8,11 +8,11 @@ interface GameComponentState {
   state: string | null,
   turn: string | null,
   fields: {
-    occupiedBy: string | null,
+    occupiedBy?: string,
     id: number,
   }[],
-  winner: string | null,
-  solution: number[] | null,
+  winner?: string,
+  solution?: number[],
 }
 
 class Game extends React.Component<{}, GameComponentState> {
@@ -22,8 +22,6 @@ class Game extends React.Component<{}, GameComponentState> {
     state: null,
     turn: null,
     fields: [],
-    winner: null,
-    solution: null,
   };
 
   mapState() {

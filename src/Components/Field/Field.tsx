@@ -5,7 +5,7 @@ import Nought from "../Nought/Nought";
 import { Player } from '../../TicTacToe/TicTacToe';
 
 interface FieldProps {
-  occupiedBy: string | null;
+  occupiedBy?: string;
   className?: string;
   onClick?: () => void;
 }

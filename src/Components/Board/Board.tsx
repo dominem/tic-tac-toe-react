@@ -4,13 +4,13 @@ import './Board.css';
 
 interface FieldType {
   id: number;
-  occupiedBy: string | null;
+  occupiedBy?: string;
 }
 
 interface BoardProps {
   fields: FieldType[];
   rowSize: number;
-  solution?: number[] | null;
+  solution?: number[];
   onFieldClick: (id: number) => void;
 }
 
