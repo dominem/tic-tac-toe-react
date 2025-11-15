@@ -32,9 +32,9 @@ class TicTacToe {
   constructor(rowSize = 3) {
     this.rowSize = rowSize;
     this.boardSize = rowSize * rowSize;
-    this.fields = this._generateFields();
-    this.diagonalA = this._generateDiagonalA();
-    this.diagonalB = this._generateDiagonalB();
+    this.fields = this.generateFields();
+    this.diagonalA = this.generateDiagonalA();
+    this.diagonalB = this.generateDiagonalB();
   }
   
   tryToMarkField = (index: number) => {
@@ -47,43 +47,76 @@ class TicTacToe {
   };
 
   _checkForWinner = (index: number) => {
-    const row = this._fieldsRow(index);
-    const columnFromLeft = this._fieldsColumnFromLeft(index);
-    const columnFromRight = this._fieldsColumnFromRight(index);
+    const row = this.fieldsRow(index);
+    const columnFromLeft = this.fieldsColumnFromLeft(index);
+    const columnFromRight = this.fieldsColumnFromRight(index);
     if (row === columnFromLeft) this._checkForWinnerOnLine(this.diagonalA);
     if (row === columnFromRight) this._checkForWinnerOnLine(this.diagonalB);
-    this._checkForWinnerOnLine(this._rowIndexes(row));
-    this._checkForWinnerOnLine(this._columnIndexes(columnFromLeft));
+    this._checkForWinnerOnLine(this.rowIndexes(row));
+    this._checkForWinnerOnLine(this.columnIndexes(columnFromLeft));
   };
 
   _checkForDraw = () => {
-    if (this._isWholeBoardOccupied()) {
+    if (this.isWholeBoardOccupied()) {
       this.state = GameState.OVER;
     }
   };
 
   _checkForWinnerOnLine = (line: number[]) => {
-    if (this._isWholeLineOccupied(line)) {
+    if (this.isWholeLineOccupied(line)) {
       this.state = GameState.OVER;
       this.winner = this.turn;
       this.solution = line;
     }
   };
 
-  _generateFields = () => Array(this.boardSize).fill(0).map(() => ({} as Field));
-  _generateDiagonalA = () => this._generateDiagonal((i) => ((i - 1) * this.rowSize) + i - 1);
-  _generateDiagonalB = () => this._generateDiagonal((i) => (i * this.rowSize) - i);
-  _generateDiagonal = (formula: (i: number) => number) => [...Array(this.rowSize).keys()].map((i) => formula(i + 1));
+  private generateFields(): Field[] {
+    return Array(this.boardSize).fill(0).map(() => ({} as Field));
+  }
+
+  private generateDiagonalA(): number[] {
+    return this.generateDiagonal((i) => ((i - 1) * this.rowSize) + i - 1);
+  }
+
+  private generateDiagonalB(): number[] {
+    return this.generateDiagonal((i) => (i * this.rowSize) - i);
+  }
+
+  private generateDiagonal(formula: (i: number) => number): number[] {
+    return [...Array(this.rowSize).keys()].map((i) => formula(i + 1));
+  }
+
   _canMarkField = (index: number) => this.state === GameState.RUNNING && !this.fields[index].occupiedBy;
   _markField = (index: number) => this.fields[index].occupiedBy = this.turn;
   _switchTurn = () => this.turn = this.turn === Player.CROSS ? Player.NOUGHT : Player.CROSS;
-  _fieldsRow = (index: number) => Math.floor(index / this.rowSize) + 1;
-  _fieldsColumnFromLeft = (index: number) => (index % this.rowSize) + 1;
-  _fieldsColumnFromRight = (index: number) => this.rowSize - (index % this.rowSize);
-  _rowIndexes = (row: number) => [...Array(this.rowSize).keys()].map((i) => i + ((row - 1) * this.rowSize));
-  _columnIndexes = (column: number) => [...Array(this.rowSize).keys()].map((i) => column + (i * this.rowSize) - 1);
-  _isWholeLineOccupied = (line: number[]) => line.every((i) => this.fields[i].occupiedBy === this.turn);
-  _isWholeBoardOccupied = () => this.fields.every((field) => field.occupiedBy != null);
+  
+  private fieldsRow(index: number): number {
+    return Math.floor(index / this.rowSize) + 1;
+  }
+
+  private fieldsColumnFromLeft(index: number): number {
+    return (index % this.rowSize) + 1;
+  }
+
+  private fieldsColumnFromRight(index: number): number {
+    return this.rowSize - (index % this.rowSize);
+  }
+
+  private rowIndexes(row: number): number[] {
+    return [...Array(this.rowSize).keys()].map((i) => i + ((row - 1) * this.rowSize));
+  }
+
+  private columnIndexes(column: number): number[] {
+    return [...Array(this.rowSize).keys()].map((i) => column + (i * this.rowSize) - 1);
+  }
+
+  private isWholeLineOccupied(line: number[]): boolean {
+    return line.every((i) => this.fields[i].occupiedBy === this.turn);
+  }
+
+  private isWholeBoardOccupied(): boolean {
+    return this.fields.every((field) => field.occupiedBy != null);
+  }
 }
 
 export default TicTacToe;
