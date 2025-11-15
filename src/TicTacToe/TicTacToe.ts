@@ -38,11 +38,11 @@ class TicTacToe {
   }
   
   tryToMarkField = (index: number) => {
-    if (this._canMarkField(index)) {
-      this._markField(index);
+    if (this.canMarkField(index)) {
+      this.markField(index);
       this._checkForWinner(index);
       this._checkForDraw();
-      this._switchTurn();
+      this.switchTurn();
     }
   };
 
@@ -86,9 +86,17 @@ class TicTacToe {
     return [...Array(this.rowSize).keys()].map((i) => formula(i + 1));
   }
 
-  _canMarkField = (index: number) => this.state === GameState.RUNNING && !this.fields[index].occupiedBy;
-  _markField = (index: number) => this.fields[index].occupiedBy = this.turn;
-  _switchTurn = () => this.turn = this.turn === Player.CROSS ? Player.NOUGHT : Player.CROSS;
+  private canMarkField(index: number): boolean {
+    return this.state === GameState.RUNNING && !this.fields[index].occupiedBy;
+  }
+
+  private markField(index: number): void {
+    this.fields[index].occupiedBy = this.turn;
+  }
+
+  private switchTurn(): void {
+    this.turn = this.turn === Player.CROSS ? Player.NOUGHT : Player.CROSS;
+  }
   
   private fieldsRow(index: number): number {
     return Math.floor(index / this.rowSize) + 1;
