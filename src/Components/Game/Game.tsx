@@ -1,12 +1,24 @@
 import React from 'react';
 import './Game.css';
 import TicTacToe from '../../TicTacToe/TicTacToe';
-import Board from "../Board/Board";
+import Board from '../Board/Board';
 
-class Game extends React.Component {
+
+interface GameState {
+  state: string | null,
+  turn: string | null,
+  fields: {
+    occupiedBy: string | null,
+    id: number,
+  }[],
+  winner: string | null,
+  solution: number[] | null,
+}
+
+class Game extends React.Component<{}, GameState> {
   game = new TicTacToe(5);
 
-  state = {
+  state: GameState = {
     state: null,
     turn: null,
     fields: [],
@@ -28,7 +40,7 @@ class Game extends React.Component {
     this.mapState();
   }
 
-  markField = (id) => {
+  markField = (id: number) => {
     this.game.tryToMarkField(id);
     this.mapState();
   };
