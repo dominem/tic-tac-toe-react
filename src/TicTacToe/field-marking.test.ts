@@ -1,5 +1,6 @@
 import { test, describe, expect } from '@rstest/core';
 import TicTacToe, { Player, GameState } from './TicTacToe';
+import { createHorizontalWinGame } from './test-helpers';
 
 describe('TicTacToe', () => {
   describe('Field Marking', () => {
@@ -20,25 +21,20 @@ describe('TicTacToe', () => {
       expect(game.turn).toBe(Player.CROSS);
     });
 
-    test('should not mark field with out of bounds negative index', () => {
+    test('should not switch turn on invalid moves', () => {
       const game = new TicTacToe();
-      const initialTurn = game.turn;
-      const initialField = game.fields[0].occupiedBy;
+      game.tryToMarkField(0);
+      const turnAfterFirstMove = game.turn;
       
-      expect(() => game.tryToMarkField(-1)).toThrowError();
+      // Try invalid moves
+      game.tryToMarkField(0); // Already occupied
+      expect(game.turn).toBe(turnAfterFirstMove);
       
-      expect(game.turn).toBe(initialTurn);
-      expect(game.fields[0].occupiedBy).toBe(initialField);
-    });
-
-    test('should not mark field with out of bounds large index', () => {
-      const game = new TicTacToe();
-      const initialTurn = game.turn;
+      expect(() => game.tryToMarkField(-1)).toThrowError(); // Out of bounds
+      expect(game.turn).toBe(turnAfterFirstMove);
       
-      expect(() => game.tryToMarkField(100)).toThrowError();
-      
-      expect(game.turn).toBe(initialTurn);
-      expect(game.fields.every(field => field.occupiedBy === undefined)).toBe(true);
+      expect(() => game.tryToMarkField(100)).toThrowError(); // Out of bounds
+      expect(game.turn).toBe(turnAfterFirstMove);
     });
 
     test('should not mark field that is already occupied', () => {
@@ -56,14 +52,7 @@ describe('TicTacToe', () => {
     });
 
     test('should not mark field when game is already over', () => {
-      const game = new TicTacToe();
-      // Create a winning scenario
-      game.tryToMarkField(0); // CROSS
-      game.tryToMarkField(3); // NOUGHT
-      game.tryToMarkField(1); // CROSS
-      game.tryToMarkField(4); // NOUGHT
-      game.tryToMarkField(2); // CROSS wins
-      
+      const game = createHorizontalWinGame();
       expect(game.state).toBe(GameState.OVER);
       const turnBeforeAttempt = game.turn;
       

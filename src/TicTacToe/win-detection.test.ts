@@ -1,127 +1,43 @@
 import { test, describe, expect } from '@rstest/core';
 import TicTacToe, { Player, GameState } from './TicTacToe';
+import { createHorizontalWinGame, createNoughtWinGame } from './test-helpers';
 
 describe('TicTacToe', () => {
   describe('Win Detection', () => {
     describe('Horizontal Wins', () => {
-      test('should detect win on first row', () => {
+      test.each([
+        { name: 'first row', moves: [0, 3, 1, 4, 2], solution: [0, 1, 2] },
+        { name: 'middle row', moves: [3, 0, 4, 1, 5], solution: [3, 4, 5] },
+        { name: 'last row', moves: [6, 0, 7, 1, 8], solution: [6, 7, 8] },
+      ])('should detect win on $name', ({ moves, solution }) => {
         const game = new TicTacToe();
-        game.tryToMarkField(0); // CROSS
-        game.tryToMarkField(3); // NOUGHT
-        game.tryToMarkField(1); // CROSS
-        game.tryToMarkField(4); // NOUGHT
-        game.tryToMarkField(2); // CROSS wins
+        moves.forEach(index => game.tryToMarkField(index));
         
         expect(game.state).toBe(GameState.OVER);
         expect(game.winner).toBe(Player.CROSS);
-        expect(game.solution).toEqual([0, 1, 2]);
-      });
-
-      test('should detect win on middle row', () => {
-        const game = new TicTacToe();
-        game.tryToMarkField(3); // CROSS
-        game.tryToMarkField(0); // NOUGHT
-        game.tryToMarkField(4); // CROSS
-        game.tryToMarkField(1); // NOUGHT
-        game.tryToMarkField(5); // CROSS wins
-        
-        expect(game.state).toBe(GameState.OVER);
-        expect(game.winner).toBe(Player.CROSS);
-        expect(game.solution).toEqual([3, 4, 5]);
-      });
-
-      test('should detect win on last row', () => {
-        const game = new TicTacToe();
-        game.tryToMarkField(6); // CROSS
-        game.tryToMarkField(0); // NOUGHT
-        game.tryToMarkField(7); // CROSS
-        game.tryToMarkField(1); // NOUGHT
-        game.tryToMarkField(8); // CROSS wins
-        
-        expect(game.state).toBe(GameState.OVER);
-        expect(game.winner).toBe(Player.CROSS);
-        expect(game.solution).toEqual([6, 7, 8]);
-      });
-
-      test('should set solution array correctly for horizontal win', () => {
-        const game = new TicTacToe();
-        game.tryToMarkField(0); // CROSS
-        game.tryToMarkField(3); // NOUGHT
-        game.tryToMarkField(1); // CROSS
-        game.tryToMarkField(4); // NOUGHT
-        game.tryToMarkField(2); // CROSS wins
-        
-        expect(game.solution).toHaveLength(3);
-        expect(game.solution).toContain(0);
-        expect(game.solution).toContain(1);
-        expect(game.solution).toContain(2);
-        expect(game.solution).toEqual(expect.arrayContaining([0, 1, 2]));
+        expect(game.solution).toEqual(solution);
       });
     });
 
     describe('Vertical Wins', () => {
-      test('should detect win on first column', () => {
+      test.each([
+        { name: 'first column', moves: [0, 1, 3, 2, 6], solution: [0, 3, 6] },
+        { name: 'middle column', moves: [1, 0, 4, 2, 7], solution: [1, 4, 7] },
+        { name: 'last column', moves: [2, 0, 5, 1, 8], solution: [2, 5, 8] },
+      ])('should detect win on $name', ({ moves, solution }) => {
         const game = new TicTacToe();
-        game.tryToMarkField(0); // CROSS
-        game.tryToMarkField(1); // NOUGHT
-        game.tryToMarkField(3); // CROSS
-        game.tryToMarkField(2); // NOUGHT
-        game.tryToMarkField(6); // CROSS wins
+        moves.forEach(index => game.tryToMarkField(index));
         
         expect(game.state).toBe(GameState.OVER);
         expect(game.winner).toBe(Player.CROSS);
-        expect(game.solution).toEqual([0, 3, 6]);
-      });
-
-      test('should detect win on middle column', () => {
-        const game = new TicTacToe();
-        game.tryToMarkField(1); // CROSS
-        game.tryToMarkField(0); // NOUGHT
-        game.tryToMarkField(4); // CROSS
-        game.tryToMarkField(2); // NOUGHT
-        game.tryToMarkField(7); // CROSS wins
-        
-        expect(game.state).toBe(GameState.OVER);
-        expect(game.winner).toBe(Player.CROSS);
-        expect(game.solution).toEqual([1, 4, 7]);
-      });
-
-      test('should detect win on last column', () => {
-        const game = new TicTacToe();
-        game.tryToMarkField(2); // CROSS
-        game.tryToMarkField(0); // NOUGHT
-        game.tryToMarkField(5); // CROSS
-        game.tryToMarkField(1); // NOUGHT
-        game.tryToMarkField(8); // CROSS wins
-        
-        expect(game.state).toBe(GameState.OVER);
-        expect(game.winner).toBe(Player.CROSS);
-        expect(game.solution).toEqual([2, 5, 8]);
-      });
-
-      test('should set solution array correctly for vertical win', () => {
-        const game = new TicTacToe();
-        game.tryToMarkField(0); // CROSS
-        game.tryToMarkField(1); // NOUGHT
-        game.tryToMarkField(3); // CROSS
-        game.tryToMarkField(2); // NOUGHT
-        game.tryToMarkField(6); // CROSS wins
-        
-        expect(game.solution).toHaveLength(3);
-        expect(game.solution).toContain(0);
-        expect(game.solution).toContain(3);
-        expect(game.solution).toContain(6);
+        expect(game.solution).toEqual(solution);
       });
     });
 
     describe('Diagonal Wins', () => {
       test('should detect win on diagonal A (top-left to bottom-right)', () => {
         const game = new TicTacToe();
-        game.tryToMarkField(0); // CROSS
-        game.tryToMarkField(1); // NOUGHT
-        game.tryToMarkField(4); // CROSS
-        game.tryToMarkField(2); // NOUGHT
-        game.tryToMarkField(8); // CROSS wins
+        [0, 1, 4, 2, 8].forEach(index => game.tryToMarkField(index));
         
         expect(game.state).toBe(GameState.OVER);
         expect(game.winner).toBe(Player.CROSS);
@@ -130,91 +46,35 @@ describe('TicTacToe', () => {
 
       test('should detect win on diagonal B (top-right to bottom-left)', () => {
         const game = new TicTacToe();
-        game.tryToMarkField(2); // CROSS
-        game.tryToMarkField(0); // NOUGHT
-        game.tryToMarkField(4); // CROSS
-        game.tryToMarkField(1); // NOUGHT
-        game.tryToMarkField(6); // CROSS wins
+        [2, 0, 4, 1, 6].forEach(index => game.tryToMarkField(index));
         
         expect(game.state).toBe(GameState.OVER);
         expect(game.winner).toBe(Player.CROSS);
         expect(game.solution).toEqual([2, 4, 6]);
       });
-
-      test('should set solution array correctly for diagonal win', () => {
-        const game = new TicTacToe();
-        game.tryToMarkField(0); // CROSS
-        game.tryToMarkField(1); // NOUGHT
-        game.tryToMarkField(4); // CROSS
-        game.tryToMarkField(2); // NOUGHT
-        game.tryToMarkField(8); // CROSS wins
-        
-        expect(game.solution).toHaveLength(3);
-        expect(game.solution).toContain(0);
-        expect(game.solution).toContain(4);
-        expect(game.solution).toContain(8);
-      });
     });
 
     describe('Win State Management', () => {
-      test('should change game state to OVER on win', () => {
-        const game = new TicTacToe();
-        game.tryToMarkField(0); // CROSS
-        game.tryToMarkField(3); // NOUGHT
-        game.tryToMarkField(1); // CROSS
-        game.tryToMarkField(4); // NOUGHT
-        game.tryToMarkField(2); // CROSS wins
+      test('should set correct state, winner, and solution on win', () => {
+        const game = createHorizontalWinGame();
         
         expect(game.state).toBe(GameState.OVER);
-      });
-
-      test('should set winner to winning player', () => {
-        const game = new TicTacToe();
-        game.tryToMarkField(0); // CROSS
-        game.tryToMarkField(3); // NOUGHT
-        game.tryToMarkField(1); // CROSS
-        game.tryToMarkField(4); // NOUGHT
-        game.tryToMarkField(2); // CROSS wins
-        
         expect(game.winner).toBe(Player.CROSS);
+        expect(game.solution).toEqual([0, 1, 2]);
       });
 
       test('should not allow further moves after win', () => {
-        const game = new TicTacToe();
-        game.tryToMarkField(0); // CROSS
-        game.tryToMarkField(3); // NOUGHT
-        game.tryToMarkField(1); // CROSS
-        game.tryToMarkField(4); // NOUGHT
-        game.tryToMarkField(2); // CROSS wins
-        
+        const game = createHorizontalWinGame();
         const turnBeforeAttempt = game.turn;
+        
         game.tryToMarkField(5);
         
         expect(game.fields[5].occupiedBy).toBeUndefined();
         expect(game.turn).toBe(turnBeforeAttempt);
       });
 
-      test('should not switch turn after win', () => {
-        const game = new TicTacToe();
-        game.tryToMarkField(0); // CROSS
-        game.tryToMarkField(3); // NOUGHT
-        game.tryToMarkField(1); // CROSS
-        game.tryToMarkField(4); // NOUGHT
-        game.tryToMarkField(2); // CROSS wins
-        
-        // Turn should be NOUGHT (would have switched after CROSS's winning move)
-        // But since game is over, no more moves should be allowed
-        expect(game.state).toBe(GameState.OVER);
-      });
-
       test('should detect NOUGHT as winner', () => {
-        const game = new TicTacToe();
-        game.tryToMarkField(0); // CROSS
-        game.tryToMarkField(3); // NOUGHT
-        game.tryToMarkField(1); // CROSS
-        game.tryToMarkField(4); // NOUGHT
-        game.tryToMarkField(8); // CROSS
-        game.tryToMarkField(5); // NOUGHT wins
+        const game = createNoughtWinGame();
         
         expect(game.state).toBe(GameState.OVER);
         expect(game.winner).toBe(Player.NOUGHT);
