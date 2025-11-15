@@ -37,14 +37,14 @@ class TicTacToe {
     this.diagonalB = this.generateDiagonalB();
   }
   
-  tryToMarkField = (index: number) => {
+  public tryToMarkField(index: number): void {
     if (this.canMarkField(index)) {
       this.markField(index);
       this.checkForWinner(index);
       this.checkForDraw();
       this.switchTurn();
     }
-  };
+  }
 
   private checkForWinner(index: number): void {
     const row = this.fieldsRow(index);
