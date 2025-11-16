@@ -25,6 +25,7 @@ class TicTacToe {
 
   public readonly rowSize: number;
   public readonly boardSize: number;
+  public readonly fieldsToWin: number;
   
   /**
    * Internal board representation as a 1D array of fields.
@@ -65,20 +66,21 @@ class TicTacToe {
    */
   public readonly fields: Field[];
 
-  /** Indices for the main diagonal (top-left to bottom-right) */
-  private readonly mainDiagonal: number[];
-  /** Indices for the anti-diagonal (top-right to bottom-left) */
-  private readonly antiDiagonal: number[];
-
-  constructor(rowSize = 3) {
+  constructor(rowSize = 3, fieldsToWin?: number) {
     if (!Number.isInteger(rowSize) || rowSize < 3) {
       throw new Error(`rowSize must be an integer >= 3, got ${rowSize}`);
     }
     this.rowSize = rowSize;
     this.boardSize = rowSize * rowSize;
+    
+    // Default fieldsToWin to rowSize if not provided, otherwise validate
+    const winRequirement = fieldsToWin ?? rowSize;
+    if (!Number.isInteger(winRequirement) || winRequirement < 3 || winRequirement > rowSize) {
+      throw new Error(`fieldsToWin must be an integer >= 3 and <= rowSize (${rowSize}), got ${winRequirement}`);
+    }
+    this.fieldsToWin = winRequirement;
+    
     this.fields = this.generateFields();
-    this.mainDiagonal = this.generateMainDiagonal();
-    this.antiDiagonal = this.generateAntiDiagonal();
   }
   
   /**
@@ -108,15 +110,11 @@ class TicTacToe {
   private checkForWinner(index: number): void {
     const rowNumber = this.getRowNumber(index);
     const columnNumber = this.getColumnNumber(index);
-    const reverseColumnNumber = this.getReverseColumnNumber(index);
     
-    // A field is on the main diagonal if its row number equals its column number
-    if (rowNumber === columnNumber) {
-      this.evaluateLineForWin(this.mainDiagonal);
-    }
-    // A field is on the anti-diagonal if its row number equals its reverse column number
-    if (rowNumber === reverseColumnNumber) {
-      this.evaluateLineForWin(this.antiDiagonal);
+    // Check all diagonal sequences containing this field
+    const diagonalSequences = this.getDiagonalSequencesContaining(index);
+    for (const sequence of diagonalSequences) {
+      this.evaluateLineForWin(sequence);
     }
     
     // Always check the row and column containing this field
@@ -135,14 +133,15 @@ class TicTacToe {
 
   /**
    * Evaluates a line (row, column, or diagonal) to see if the current player has won.
-   * If all fields in the line are occupied by the current player, sets the game state to OVER
-   * and records the winner and winning line indices.
+   * If there are consecutive fieldsToWin fields in the line occupied by the current player,
+   * sets the game state to OVER and records the winner and winning sequence indices.
    */
   private evaluateLineForWin(line: number[]): void {
-    if (this.isLineWinningForCurrentPlayer(line)) {
+    const winningSequence = this.findWinningSequence(line);
+    if (winningSequence) {
       this.state = GameState.OVER;
       this.winner = this.turn;
-      this.solution = line;
+      this.solution = winningSequence;
     }
   }
 
@@ -151,30 +150,6 @@ class TicTacToe {
    */
   private generateFields(): Field[] {
     return Array(this.boardSize).fill(0).map(() => ({} as Field));
-  }
-
-  /**
-   * Generates indices for the main diagonal (top-left to bottom-right).
-   * Formula: for row i (0-based), index = i * rowSize + i
-   */
-  private generateMainDiagonal(): number[] {
-    return this.generateDiagonal((i) => (i * this.rowSize) + i);
-  }
-
-  /**
-   * Generates indices for the anti-diagonal (top-right to bottom-left).
-   * Formula: for row i (0-based), index = (i + 1) * rowSize - (i + 1)
-   */
-  private generateAntiDiagonal(): number[] {
-    return this.generateDiagonal((i) => ((i + 1) * this.rowSize) - (i + 1));
-  }
-
-  /**
-   * Helper to generate a diagonal by applying a formula to each row index.
-   * @param formula Function that calculates the field index for a given row number (0-based)
-   */
-  private generateDiagonal(formula: (i: number) => number): number[] {
-    return [...Array(this.rowSize).keys()].map((i) => formula(i));
   }
 
   /**
@@ -217,14 +192,6 @@ class TicTacToe {
   }
 
   /**
-   * Returns the column number (0-based, counting from right) for a given field index.
-   * Used to determine if a field is on the anti-diagonal.
-   */
-  private getReverseColumnNumber(index: number): number {
-    return this.rowSize - 1 - (index % this.rowSize);
-  }
-
-  /**
    * Returns all field indices for a given row number (0-based).
    */
   private getRowFieldIndices(row: number): number[] {
@@ -239,10 +206,86 @@ class TicTacToe {
   }
 
   /**
-   * Checks if all fields in a line are occupied by the current player (indicating a win).
+   * Returns all indices in the main diagonal (top-left to bottom-right) that contains (row, col).
+   * Main diagonals have constant (row - col) value.
    */
-  private isLineWinningForCurrentPlayer(line: number[]): boolean {
-    return line.every((i) => this.fields[i].occupiedBy === this.turn);
+  private getMainDiagonalSequenceContaining(row: number, col: number): number[] {
+    const diagonalConstant = row - col;
+    const sequence: number[] = [];
+    
+    // Find the starting position (top-leftmost valid cell)
+    let r = Math.max(0, diagonalConstant);
+    let c = Math.max(0, -diagonalConstant);
+    
+    // Continue until we go out of bounds
+    while (r < this.rowSize && c < this.rowSize) {
+      sequence.push(r * this.rowSize + c);
+      r++;
+      c++;
+    }
+    
+    return sequence;
+  }
+
+  /**
+   * Returns all indices in the anti-diagonal (top-right to bottom-left) that contains (row, col).
+   * Anti-diagonals have constant (row + col) value.
+   */
+  private getAntiDiagonalSequenceContaining(row: number, col: number): number[] {
+    const diagonalConstant = row + col;
+    const sequence: number[] = [];
+    
+    // Find the starting position (top-rightmost valid cell)
+    let r = Math.max(0, diagonalConstant - (this.rowSize - 1));
+    let c = Math.min(this.rowSize - 1, diagonalConstant);
+    
+    // Continue until we go out of bounds
+    while (r < this.rowSize && c >= 0 && r + c === diagonalConstant) {
+      sequence.push(r * this.rowSize + c);
+      r++;
+      c--;
+    }
+    
+    return sequence;
+  }
+
+  /**
+   * Returns all diagonal sequences (main and anti) that contain the given index.
+   * Filters out sequences shorter than fieldsToWin as an optimization.
+   */
+  private getDiagonalSequencesContaining(index: number): number[][] {
+    const row = this.getRowNumber(index);
+    const col = this.getColumnNumber(index);
+    
+    const mainDiagonal = this.getMainDiagonalSequenceContaining(row, col);
+    const antiDiagonal = this.getAntiDiagonalSequenceContaining(row, col);
+    
+    const sequences: number[][] = [];
+    
+    // Only include sequences that are long enough to potentially contain a win
+    if (mainDiagonal.length >= this.fieldsToWin) {
+      sequences.push(mainDiagonal);
+    }
+    if (antiDiagonal.length >= this.fieldsToWin) {
+      sequences.push(antiDiagonal);
+    }
+    
+    return sequences;
+  }
+
+  /**
+   * Finds a winning sequence of consecutive fieldsToWin fields in a line.
+   * Returns the sequence of indices if found, undefined otherwise.
+   */
+  private findWinningSequence(line: number[]): number[] | undefined {
+    // Use sliding window to find consecutive fieldsToWin fields
+    for (let i = 0; i <= line.length - this.fieldsToWin; i++) {
+      const sequence = line.slice(i, i + this.fieldsToWin);
+      if (sequence.every((index) => this.fields[index].occupiedBy === this.turn)) {
+        return sequence;
+      }
+    }
+    return undefined;
   }
 
   /**

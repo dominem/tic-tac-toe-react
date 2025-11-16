@@ -16,7 +16,7 @@ interface GameComponentState {
 }
 
 class Game extends React.Component<{}, GameComponentState> {
-  game = new TicTacToe(5);
+  game = new TicTacToe(5, 3);
 
   state: GameComponentState = {
     state: null,
