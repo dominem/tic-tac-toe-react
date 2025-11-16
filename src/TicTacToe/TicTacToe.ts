@@ -66,11 +66,6 @@ class TicTacToe {
    */
   public readonly fields: Field[];
 
-  /** Indices for the main diagonal (top-left to bottom-right) */
-  private readonly mainDiagonal: number[];
-  /** Indices for the anti-diagonal (top-right to bottom-left) */
-  private readonly antiDiagonal: number[];
-
   constructor(rowSize = 3, fieldsToWin?: number) {
     if (!Number.isInteger(rowSize) || rowSize < 3) {
       throw new Error(`rowSize must be an integer >= 3, got ${rowSize}`);
@@ -86,8 +81,6 @@ class TicTacToe {
     this.fieldsToWin = winRequirement;
     
     this.fields = this.generateFields();
-    this.mainDiagonal = this.generateMainDiagonal();
-    this.antiDiagonal = this.generateAntiDiagonal();
   }
   
   /**
@@ -160,30 +153,6 @@ class TicTacToe {
   }
 
   /**
-   * Generates indices for the main diagonal (top-left to bottom-right).
-   * Formula: for row i (0-based), index = i * rowSize + i
-   */
-  private generateMainDiagonal(): number[] {
-    return this.generateDiagonal((i) => (i * this.rowSize) + i);
-  }
-
-  /**
-   * Generates indices for the anti-diagonal (top-right to bottom-left).
-   * Formula: for row i (0-based), index = (i + 1) * rowSize - (i + 1)
-   */
-  private generateAntiDiagonal(): number[] {
-    return this.generateDiagonal((i) => ((i + 1) * this.rowSize) - (i + 1));
-  }
-
-  /**
-   * Helper to generate a diagonal by applying a formula to each row index.
-   * @param formula Function that calculates the field index for a given row number (0-based)
-   */
-  private generateDiagonal(formula: (i: number) => number): number[] {
-    return [...Array(this.rowSize).keys()].map((i) => formula(i));
-  }
-
-  /**
    * Checks if a field can be marked (game is running and field is unoccupied).
    * Throws an error if the index is out of bounds.
    */
@@ -220,14 +189,6 @@ class TicTacToe {
    */
   private getColumnNumber(index: number): number {
     return index % this.rowSize;
-  }
-
-  /**
-   * Returns the column number (0-based, counting from right) for a given field index.
-   * Used to determine if a field is on the anti-diagonal.
-   */
-  private getReverseColumnNumber(index: number): number {
-    return this.rowSize - 1 - (index % this.rowSize);
   }
 
   /**
