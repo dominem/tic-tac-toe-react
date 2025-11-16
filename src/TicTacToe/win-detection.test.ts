@@ -179,6 +179,53 @@ describe('TicTacToe', () => {
         expect(game.solution).toHaveLength(3);
         expect(game.solution).toEqual([0, 1, 2]);
       });
+
+      test('should work with custom fieldsToWin on 4x4 board', () => {
+        const game = new TicTacToe(4, 3);
+        
+        // Create horizontal win with 3 consecutive fields (not all 4)
+        game.tryToMarkField(0); // CROSS
+        game.tryToMarkField(4); // NOUGHT
+        game.tryToMarkField(1); // CROSS
+        game.tryToMarkField(5); // NOUGHT
+        game.tryToMarkField(2); // CROSS wins (3 in a row)
+        
+        expect(game.state).toBe(GameState.OVER);
+        expect(game.winner).toBe(Player.CROSS);
+        expect(game.solution).toEqual([0, 1, 2]);
+      });
+
+      test('should require all fields when fieldsToWin equals rowSize', () => {
+        const game = new TicTacToe(4, 4);
+        
+        // Must fill entire row to win
+        game.tryToMarkField(0); // CROSS
+        game.tryToMarkField(4); // NOUGHT
+        game.tryToMarkField(1); // CROSS
+        game.tryToMarkField(5); // NOUGHT
+        game.tryToMarkField(2); // CROSS
+        game.tryToMarkField(6); // NOUGHT
+        game.tryToMarkField(3); // CROSS wins (all 4 in a row)
+        
+        expect(game.state).toBe(GameState.OVER);
+        expect(game.winner).toBe(Player.CROSS);
+        expect(game.solution).toEqual([0, 1, 2, 3]);
+      });
+
+      test('should detect win with fieldsToWin=3 on 6x6 board', () => {
+        const game = new TicTacToe(6, 3);
+        
+        // Create horizontal win with 3 consecutive fields in row 1 (indices 6, 7, 8)
+        game.tryToMarkField(6); // CROSS
+        game.tryToMarkField(0); // NOUGHT
+        game.tryToMarkField(7); // CROSS
+        game.tryToMarkField(1); // NOUGHT
+        game.tryToMarkField(8); // CROSS wins (3 in a row)
+        
+        expect(game.state).toBe(GameState.OVER);
+        expect(game.winner).toBe(Player.CROSS);
+        expect(game.solution).toEqual([6, 7, 8]);
+      });
     });
   });
 });
