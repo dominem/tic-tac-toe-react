@@ -124,6 +124,92 @@ describe('TicTacToe', () => {
         expect(game.solution).toEqual([0, 6, 12]);
       });
 
+      test('should detect main diagonal win not on full main diagonal (5x5, fieldsToWin=3)', () => {
+        const game = new TicTacToe(5, 3);
+        // Create diagonal win starting at row 0, col 1: [1, 7, 13]
+        game.tryToMarkField(1); // CROSS
+        game.tryToMarkField(0); // NOUGHT
+        game.tryToMarkField(7); // CROSS
+        game.tryToMarkField(2); // NOUGHT
+        game.tryToMarkField(13); // CROSS wins (3 in a diagonal)
+        
+        expect(game.state).toBe(GameState.OVER);
+        expect(game.winner).toBe(Player.CROSS);
+        expect(game.solution).toEqual([1, 7, 13]);
+      });
+
+      test('should detect main diagonal win starting in middle row (5x5, fieldsToWin=3)', () => {
+        const game = new TicTacToe(5, 3);
+        // Create diagonal win starting at row 1, col 0: [5, 11, 17]
+        game.tryToMarkField(5); // CROSS
+        game.tryToMarkField(0); // NOUGHT
+        game.tryToMarkField(11); // CROSS
+        game.tryToMarkField(1); // NOUGHT
+        game.tryToMarkField(17); // CROSS wins (3 in a diagonal)
+        
+        expect(game.state).toBe(GameState.OVER);
+        expect(game.winner).toBe(Player.CROSS);
+        expect(game.solution).toEqual([5, 11, 17]);
+      });
+
+      test('should detect anti-diagonal win not on full anti-diagonal (5x5, fieldsToWin=3)', () => {
+        const game = new TicTacToe(5, 3);
+        // Create anti-diagonal win starting at row 0, col 3: [3, 7, 11]
+        game.tryToMarkField(3); // CROSS
+        game.tryToMarkField(0); // NOUGHT
+        game.tryToMarkField(7); // CROSS
+        game.tryToMarkField(1); // NOUGHT
+        game.tryToMarkField(11); // CROSS wins (3 in an anti-diagonal)
+        
+        expect(game.state).toBe(GameState.OVER);
+        expect(game.winner).toBe(Player.CROSS);
+        expect(game.solution).toEqual([3, 7, 11]);
+      });
+
+      test('should detect anti-diagonal win starting in middle (5x5, fieldsToWin=3)', () => {
+        const game = new TicTacToe(5, 3);
+        // Create anti-diagonal win starting at row 0, col 4: [4, 8, 12]
+        game.tryToMarkField(4); // CROSS
+        game.tryToMarkField(0); // NOUGHT
+        game.tryToMarkField(8); // CROSS
+        game.tryToMarkField(1); // NOUGHT
+        game.tryToMarkField(12); // CROSS wins (3 in an anti-diagonal)
+        
+        expect(game.state).toBe(GameState.OVER);
+        expect(game.winner).toBe(Player.CROSS);
+        expect(game.solution).toEqual([4, 8, 12]);
+      });
+
+      test('should detect diagonal win near edges (6x6, fieldsToWin=3)', () => {
+        const game = new TicTacToe(6, 3);
+        // Create diagonal win near top-right: [2, 9, 16]
+        game.tryToMarkField(2); // CROSS
+        game.tryToMarkField(0); // NOUGHT
+        game.tryToMarkField(9); // CROSS
+        game.tryToMarkField(1); // NOUGHT
+        game.tryToMarkField(16); // CROSS wins (3 in a diagonal)
+        
+        expect(game.state).toBe(GameState.OVER);
+        expect(game.winner).toBe(Player.CROSS);
+        expect(game.solution).toEqual([2, 9, 16]);
+      });
+
+      test('should detect diagonal win on larger board with smaller fieldsToWin (7x7, fieldsToWin=4)', () => {
+        const game = new TicTacToe(7, 4);
+        // Create main diagonal win not on full diagonal: [1, 9, 17, 25]
+        game.tryToMarkField(1); // CROSS
+        game.tryToMarkField(0); // NOUGHT
+        game.tryToMarkField(9); // CROSS
+        game.tryToMarkField(2); // NOUGHT
+        game.tryToMarkField(17); // CROSS
+        game.tryToMarkField(3); // NOUGHT
+        game.tryToMarkField(25); // CROSS wins (4 in a diagonal)
+        
+        expect(game.state).toBe(GameState.OVER);
+        expect(game.winner).toBe(Player.CROSS);
+        expect(game.solution).toEqual([1, 9, 17, 25]);
+      });
+
       test('should detect win with 4 fields on 5x5 board', () => {
         const game = new TicTacToe(5, 4);
         // Create horizontal win with 4 consecutive fields

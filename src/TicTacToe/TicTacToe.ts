@@ -117,15 +117,11 @@ class TicTacToe {
   private checkForWinner(index: number): void {
     const rowNumber = this.getRowNumber(index);
     const columnNumber = this.getColumnNumber(index);
-    const reverseColumnNumber = this.getReverseColumnNumber(index);
     
-    // A field is on the main diagonal if its row number equals its column number
-    if (rowNumber === columnNumber) {
-      this.evaluateLineForWin(this.mainDiagonal);
-    }
-    // A field is on the anti-diagonal if its row number equals its reverse column number
-    if (rowNumber === reverseColumnNumber) {
-      this.evaluateLineForWin(this.antiDiagonal);
+    // Check all diagonal sequences containing this field
+    const diagonalSequences = this.getDiagonalSequencesContaining(index);
+    for (const sequence of diagonalSequences) {
+      this.evaluateLineForWin(sequence);
     }
     
     // Always check the row and column containing this field
@@ -246,6 +242,74 @@ class TicTacToe {
    */
   private getColumnFieldIndices(column: number): number[] {
     return [...Array(this.rowSize).keys()].map((i) => column + (i * this.rowSize));
+  }
+
+  /**
+   * Returns all indices in the main diagonal (top-left to bottom-right) that contains (row, col).
+   * Main diagonals have constant (row - col) value.
+   */
+  private getMainDiagonalSequenceContaining(row: number, col: number): number[] {
+    const diagonalConstant = row - col;
+    const sequence: number[] = [];
+    
+    // Find the starting position (top-leftmost valid cell)
+    let r = Math.max(0, diagonalConstant);
+    let c = Math.max(0, -diagonalConstant);
+    
+    // Continue until we go out of bounds
+    while (r < this.rowSize && c < this.rowSize) {
+      sequence.push(r * this.rowSize + c);
+      r++;
+      c++;
+    }
+    
+    return sequence;
+  }
+
+  /**
+   * Returns all indices in the anti-diagonal (top-right to bottom-left) that contains (row, col).
+   * Anti-diagonals have constant (row + col) value.
+   */
+  private getAntiDiagonalSequenceContaining(row: number, col: number): number[] {
+    const diagonalConstant = row + col;
+    const sequence: number[] = [];
+    
+    // Find the starting position (top-rightmost valid cell)
+    let r = Math.max(0, diagonalConstant - (this.rowSize - 1));
+    let c = Math.min(this.rowSize - 1, diagonalConstant);
+    
+    // Continue until we go out of bounds
+    while (r < this.rowSize && c >= 0 && r + c === diagonalConstant) {
+      sequence.push(r * this.rowSize + c);
+      r++;
+      c--;
+    }
+    
+    return sequence;
+  }
+
+  /**
+   * Returns all diagonal sequences (main and anti) that contain the given index.
+   * Filters out sequences shorter than fieldsToWin as an optimization.
+   */
+  private getDiagonalSequencesContaining(index: number): number[][] {
+    const row = this.getRowNumber(index);
+    const col = this.getColumnNumber(index);
+    
+    const mainDiagonal = this.getMainDiagonalSequenceContaining(row, col);
+    const antiDiagonal = this.getAntiDiagonalSequenceContaining(row, col);
+    
+    const sequences: number[][] = [];
+    
+    // Only include sequences that are long enough to potentially contain a win
+    if (mainDiagonal.length >= this.fieldsToWin) {
+      sequences.push(mainDiagonal);
+    }
+    if (antiDiagonal.length >= this.fieldsToWin) {
+      sequences.push(antiDiagonal);
+    }
+    
+    return sequences;
   }
 
   /**
