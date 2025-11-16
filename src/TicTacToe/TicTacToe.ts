@@ -25,6 +25,7 @@ class TicTacToe {
 
   public readonly rowSize: number;
   public readonly boardSize: number;
+  public readonly fieldsToWin: number;
   
   /**
    * Internal board representation as a 1D array of fields.
@@ -70,12 +71,20 @@ class TicTacToe {
   /** Indices for the anti-diagonal (top-right to bottom-left) */
   private readonly antiDiagonal: number[];
 
-  constructor(rowSize = 3) {
+  constructor(rowSize = 3, fieldsToWin?: number) {
     if (!Number.isInteger(rowSize) || rowSize < 3) {
       throw new Error(`rowSize must be an integer >= 3, got ${rowSize}`);
     }
     this.rowSize = rowSize;
     this.boardSize = rowSize * rowSize;
+    
+    // Default fieldsToWin to rowSize if not provided, otherwise validate
+    const winRequirement = fieldsToWin ?? rowSize;
+    if (!Number.isInteger(winRequirement) || winRequirement < 3 || winRequirement > rowSize) {
+      throw new Error(`fieldsToWin must be an integer >= 3 and <= rowSize (${rowSize}), got ${winRequirement}`);
+    }
+    this.fieldsToWin = winRequirement;
+    
     this.fields = this.generateFields();
     this.mainDiagonal = this.generateMainDiagonal();
     this.antiDiagonal = this.generateAntiDiagonal();
@@ -135,14 +144,15 @@ class TicTacToe {
 
   /**
    * Evaluates a line (row, column, or diagonal) to see if the current player has won.
-   * If all fields in the line are occupied by the current player, sets the game state to OVER
-   * and records the winner and winning line indices.
+   * If there are consecutive fieldsToWin fields in the line occupied by the current player,
+   * sets the game state to OVER and records the winner and winning sequence indices.
    */
   private evaluateLineForWin(line: number[]): void {
-    if (this.isLineWinningForCurrentPlayer(line)) {
+    const winningSequence = this.findWinningSequence(line);
+    if (winningSequence) {
       this.state = GameState.OVER;
       this.winner = this.turn;
-      this.solution = line;
+      this.solution = winningSequence;
     }
   }
 
@@ -239,10 +249,18 @@ class TicTacToe {
   }
 
   /**
-   * Checks if all fields in a line are occupied by the current player (indicating a win).
+   * Finds a winning sequence of consecutive fieldsToWin fields in a line.
+   * Returns the sequence of indices if found, undefined otherwise.
    */
-  private isLineWinningForCurrentPlayer(line: number[]): boolean {
-    return line.every((i) => this.fields[i].occupiedBy === this.turn);
+  private findWinningSequence(line: number[]): number[] | undefined {
+    // Use sliding window to find consecutive fieldsToWin fields
+    for (let i = 0; i <= line.length - this.fieldsToWin; i++) {
+      const sequence = line.slice(i, i + this.fieldsToWin);
+      if (sequence.every((index) => this.fields[index].occupiedBy === this.turn)) {
+        return sequence;
+      }
+    }
+    return undefined;
   }
 
   /**
